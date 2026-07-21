@@ -42,7 +42,7 @@ defmodule Demo do
         renderer: __MODULE__,
         renderer_state: %{eink: eink, render_count: 0},
         width: 648,
-        height: 480,
+        height: 480
       )
 
     IO.puts(panel, "Hello, world!")
@@ -61,12 +61,12 @@ defmodule Demo do
 
     rgb = :egd.render(image, :raw_bitmap)
     data = pack_bits(rgb)
-    EInk.draw(eink, data, refresh_type: refresh_type)
+    EInk.draw(state.eink, data, refresh_type: refresh_type)
 
     %{state | render_count: render_count + 1}
   end
 
-  def pack_bits(binary) do
+  defp pack_bits(binary) do
     # Convert 24-bit RGB to 1 bpp. This samples the high bit of the red
     # component. A more sophisticated conversion would convert to gray and
     # dither, but the example source image is black and white anyway.
@@ -76,6 +76,7 @@ defmodule Demo do
       <<b0::1, b1::1, b2::1, b3::1, b4::1, b5::1, b6::1, b7::1>>
     end
   end
+end
 ```
 
 ## Fonts
