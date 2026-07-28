@@ -78,7 +78,7 @@ defmodule EgdTextPanel do
         :name,
         :renderer,
         renderer_state: %{},
-        font_path: Application.app_dir(:egd, "priv/fonts/6x11_latin1.wingsfont"),
+        font_path: Application.app_dir(:egd, "priv/fonts/Terminus16.wingsfont"),
         width: 320,
         height: 200,
         font_color: :black,
