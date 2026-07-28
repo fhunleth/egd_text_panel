@@ -41,7 +41,7 @@ defmodule EgdTextPanel.MixProject do
   defp deps do
     [
       {:circular_buffer, "~> 1.1"},
-      {:egd, "~> 0.10.1", hex: :egd24},
+      {:egd, "~> 0.11.0", hex: :egd_fhunleth},
       {:credo, "~> 1.6", only: :test, runtime: false},
       {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.26", only: :docs, runtime: false}
