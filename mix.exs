@@ -4,7 +4,7 @@
 defmodule EgdTextPanel.MixProject do
   use Mix.Project
 
-  @version "0.1.1"
+  @version "0.1.2"
   @source_url "https://github.com/fhunleth/egd_text_panel"
 
   def project do
