@@ -13,6 +13,11 @@ defmodule EgdTextPanel do
 
       {:ok, io} = EgdTextPanel.start_link(your_options)
       IO.puts(io, "Hello")
+
+  ANSI control sequences emitted by `IO.ANSI.format/1` can clear the screen,
+  clear the current line, and move the cursor home:
+
+      IO.write(io, IO.ANSI.format([:clear, :home, "Hello, world"]))
   """
 
   use GenServer
@@ -32,7 +37,8 @@ defmodule EgdTextPanel do
           render_pending: boolean(),
           lines: CircularBuffer.t(),
           column: non_neg_integer(),
-          current_line: list()
+          current_line: list(),
+          ansi_state: :none | :escape | {:csi, [char()]}
         }
 
   @typedoc """
@@ -121,6 +127,7 @@ defmodule EgdTextPanel do
        lines: CircularBuffer.new(rows - 1),
        column: 0,
        current_line: [],
+       ansi_state: :none,
        margins: margins
      }}
   end
@@ -207,6 +214,28 @@ defmodule EgdTextPanel do
 
   defp decode_characters(_chars, _encoding), do: :error
 
+  defp put_character(character, %{ansi_state: :none} = state) when character == 0x1B,
+    do: %{state | ansi_state: :escape}
+
+  defp put_character(?[, %{ansi_state: :escape} = state),
+    do: %{state | ansi_state: {:csi, []}}
+
+  defp put_character(character, %{ansi_state: :escape} = state),
+    do: put_character(character, %{state | ansi_state: :none})
+
+  defp put_character(character, %{ansi_state: {:csi, characters}} = state)
+       when character in 0x40..0x7E do
+    state = handle_csi(Enum.reverse([character | characters]), state)
+    %{state | ansi_state: :none}
+  end
+
+  defp put_character(character, %{ansi_state: {:csi, _characters}} = state)
+       when character == 0x1B,
+       do: %{state | ansi_state: :escape}
+
+  defp put_character(character, %{ansi_state: {:csi, characters}} = state),
+    do: %{state | ansi_state: {:csi, [character | characters]}}
+
   defp put_character(?\n, state), do: newline(state)
   defp put_character(?\r, state), do: %{state | column: 0}
   defp put_character(?\b, %{column: 0} = state), do: state
@@ -240,6 +269,19 @@ defmodule EgdTextPanel do
         column: 0
     }
   end
+
+  defp handle_csi([?2, ?J], state), do: clear_screen(state)
+  defp handle_csi([?2, ?K], state), do: clear_line(state)
+  defp handle_csi([?H], state), do: home(state)
+  defp handle_csi(_sequence, state), do: state
+
+  defp clear_screen(state) do
+    %{state | lines: CircularBuffer.new(state.rows - 1), current_line: [], column: 0}
+  end
+
+  defp clear_line(state), do: %{state | current_line: []}
+
+  defp home(state), do: %{state | column: 0}
 
   defp schedule_render(%{render_pending: true} = state), do: state
 

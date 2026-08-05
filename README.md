@@ -20,6 +20,52 @@ supporting the feature set of other graphics libraries, but it's pure Erlang.
 It's also sufficient for lots of projects where I just want to show status or
 output diagnostics.
 
+## Using
+
+The first step to using `EgdTextPanel` is to create one. This requires providing
+an `EgdTextPanel.Renderer` implementation that displays update to your display.
+This is a one-time setup device-specific step so see the next section for an
+example for the Nerves Starter Kit's display.
+
+```elixir
+iex> {:ok, panel} = EgdTextPanel.start_link(...)
+{:ok, #PID<0.268.0>}
+iex> IO.puts(panel, "Hello, world!")
+:ok
+```
+
+You should see `"Hello, world!"` on your display now.
+
+Anything you can send to `IO.puts/2` goes to the display so you can pass around
+the `panel` reference and use it just like any other text output device.
+
+It's also possible to send a subset of ANSI commands to clear a line or clear
+the screen and start over.
+
+Use `IO.ANSI.format/1` to encode the ANSI control codes to clear the screen and
+put the cursor back at the top left. Set `panel` to `:stdio` to see what happens
+without `EgdTextPanel`.
+
+
+```elixir
+iex> IO.puts(panel, IO.ANSI.format([:clear, :home, "A fresh start"]))
+:ok
+```
+
+You can also render horizontal animations by using `IO.write/2` to stay on a
+line:
+
+```elixir
+iex> Enum.each(10..1//-1, fn n ->
+         IO.write(panel, IO.ANSI.format([:clear_line, "\rT-#{n}"]));
+         Process.sleep(1000)
+      end);\
+     IO.puts(panel, IO.ANSI.format([:clear_line, "\rLift off!"]))
+```
+
+The parts to note are the use of `:clear_line` to erase the text on the line and
+the `\r` to move back to the start of the line.
+
 ## Example code
 
 This code snippet works on the Nerves Starter Kit.

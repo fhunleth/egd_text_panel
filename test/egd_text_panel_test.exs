@@ -56,4 +56,25 @@ defmodule EgdTextPanelTest do
     # FIX: Actually check when it's right
     File.write("out.png", result)
   end
+
+  test "handles ANSI clear, home, and clear-line sequences" do
+    panel =
+      start_supervised!(
+        {EgdTextPanel,
+         renderer: __MODULE__.Renderer,
+         renderer_state: %{pid: self()},
+         width: @test_width,
+         height: @test_height}
+      )
+
+    IO.write(panel, "Before")
+    IO.write(panel, IO.ANSI.format([:clear, :home, "Hello, world"], true))
+
+    assert %{column: 12, current_line: ~c"Hello, world", lines: lines} = :sys.get_state(panel)
+    assert CircularBuffer.to_list(lines) == []
+
+    IO.write(panel, IO.ANSI.clear_line())
+
+    assert %{column: 12, current_line: []} = :sys.get_state(panel)
+  end
 end
