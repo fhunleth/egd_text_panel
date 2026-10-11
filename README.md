@@ -7,6 +7,7 @@
 
 [![Hex version](https://img.shields.io/hexpm/v/egd_text_panel.svg "Hex version")](https://hex.pm/packages/egd_text_panel)
 [![API docs](https://img.shields.io/hexpm/v/egd_text_panel.svg?label=hexdocs "API docs")](https://egd-text-panel.hexdocs.pm/EgdTextPanel.html)
+[![Nerves compatibility](https://compatibility.nerves-project.org/badge/egd_text_panel.svg)](https://compatibility.nerves-project.org/packages/egd_text_panel)
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/fhunleth/egd_text_panel/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/fhunleth/egd_text_panel/tree/main)
 [![REUSE status](https://api.reuse.software/badge/github.com/fhunleth/egd_text_panel)](https://api.reuse.software/info/github.com/fhunleth/egd_text_panel)
 
